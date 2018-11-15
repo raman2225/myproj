@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>ControlM Helper</title>
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
+<link rel="stylesheet" href="css/controlm.css">
+<!-- Compiled and minified JavaScript -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.js" type="text/javascript"></script>
+<script src="js/jquery.excel.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.ajax({
+			url : 'GetXmlFiles',
+			beforeSend : function() {
+				$("#divLoading").show();
+			},
+			success : function(responseText) {
+				$("#FilesList").html(responseText);
+				$("#divLoading").hide();
+			}
+		});
+		$("#btnExport").click(function() {
+			$("#srchTbl").btechco_excelexport({
+				containerid : "srchTbl",
+				datatype : $datatype.Table
+			});
+		});
+	});
+	function setxmlFile(id) {
+		$.ajax({
+			url : 'SelectXmlFile',
+			data : {
+				filename : id
+			},
+			success : function(responseText) {
+				$("#FilesList")
+						.html("<b><i>Selected File : " + id + "</i></b>");
+				$("#divSrch").show();
+			}
+		});
+	}
+	function srch() {
+		$("#divTbl").hide();
+		$("#tblBody").html("");
+		$("#btnExport").hide();
+		var radioValue = $("input[name='group1']:checked").val();
+		var txtSrch = $("#txtSrchText").val();
+		if (radioValue) {
+			if (txtSrch) {
+				$.ajax({
+					url : 'SrchResults',
+					data : {
+						srchCriteria : radioValue,
+						txtSrch : txtSrch
+					},
+					beforeSend : function() {
+						// setting a timeout
+						$("#divSrching").show();
+					},
+					success : function(responseText) {
+						$("#divSrching").hide();
+						$("#tblBody").html(responseText);
+						$("#divTbl").show();
+						$("#btnExport").show();
+					}
+				});
+			} else {
+				alert("Please enter some text to search");
+				$("#txtSrchText").focus();
+			}
+
+		} else {
+			alert("Please choose one option to search");
+		}
+
+	}
+</script>
+</head>
+<body>
+	<div class="row  center-align">
+		<div class="col s12 header">
+			<p>
+				<a class="white-text" href="Home.html"> Control-M Helper Tool</a>
+			</p>
+		</div>
+	</div>
+	<div id="divLoading" style="display: none" class="row  center-align">
+		<div class="col s12">
+			<h4>Please wait while we are listing the Control-M XML files
+				from the network path!</h4>
+			<div id="divProgress" class="progress">
+				<div class="indeterminate"></div>
+			</div>
+		</div>
+	</div>
+	<div id="FilesList" class="row center-align"></div>
+	<div id="divSrch" style="display: none">
+		<div class="row">
+			<h3>Search by</h3>
+			<table>
+				<tr>
+					<td><label> <input value="app" name="group1"
+							type="radio" /> <span>Application</span>
+					</label></td>
+					<td><label> <input value="subapp" name="group1"
+							type="radio" /> <span>Sub-application</span>
+					</label></td>
+					<td><label> <input value="jobname" name="group1"
+							type="radio" /> <span>Jobname</span>
+					</label></td>
+					<td><label> <input value="cmdline" name="group1"
+							type="radio" /> <span>Command Line</span>
+					</label></td>
+					<td><label> <input value="nodeid" name="group1"
+							type="radio" /> <span>Node ID</span>
+					</label></td>
+					<td><label> <input value="tasktype" name="group1"
+							type="radio" /> <span>Task Type</span>
+					</label></td>
+					<td><label> <input value="runas" name="group1"
+							type="radio" /> <span>RunAs</span>
+					</label></td>
+				</tr>
+			</table>
+
+
+
+
+		</div>
+		<div class="row center-align">
+			<div class="row">
+				<div class="input-field col s12">
+					<input id="txtSrchText" type="text" class="validate"> <label
+						for="txtSrchText">Search...</label>
+				</div>
+			</div>
+			<div class="row">
+				<button class="btn waves-effect waves-light" type="button"
+					onclick="srch()">
+					Submit <i class="material-icons right">send</i>
+				</button>
+			</div>
+		</div>
+		<div id="divSrching" style="display: none" class="row  center-align">
+			<div class="col s12">
+				<h4>Searching for your search text in selected XML file...</h4>
+				<div class="progress">
+					<div class="indeterminate"></div>
+				</div>
+			</div>
+		</div>
+		<div id="divTbl" style="display: none" class="row">
+			<div class="col s12">
+				<a id="btnExport" style="display: none"
+					class="btn-floating btn-large waves-effect waves-light red right"><i
+					class="material-icons">file_download</i></a>
+				<table id="srchTbl" class="striped responsive-table">
+					<thead>
+						<tr>
+							<th>Application</th>
+							<th>Sub-application</th>
+							<th>Job-name</th>
+							<th>Command Line</th>
+							<th>Node ID</th>
+							<th>Task Type</th>
+							<th>Run As</th>
+						</tr>
+					</thead>
+					<tbody id="tblBody">
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
